@@ -1,55 +1,79 @@
-.container {
+body {
+	font-family: sans-serif;
+	background: #fff;
+	margin: 0;
+	padding: 0;
+}
+
+.task-list {
+	width: 100%;
 	max-width: 600px;
-	margin: 20px auto;
-	padding: 20px;
-	background: white;
-	border-radius: 8px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	margin: 0 auto;
 }
 
-h1 {
-	text-align: center;
+.task-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-bottom: 1px solid #e0e0e0;
+	padding: 12px 10px;
+	transition: border-color 0.3s;
+}
+
+.task-item:hover {
+	border-bottom: 1px solid rgba(169, 178, 235, 1);
+}
+
+.checkbox {
+	width: 18px;
+	height: 18px;
+	margin-right: 10px;
+	display: inline-block;
+}
+
+.task-text {
 	font-size: 24px;
+	font-weight: 500;
+	flex-grow: 1;
+	color: #000;
 }
 
-table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-top: 20px;
+.task-text.completed {
+	color: #999;
+	text-decoration: line-through;
 }
 
-th,
-td {
-	padding: 10px;
-	border: 1px solid #ddd;
-	text-align: center;
+.check-icon {
+	font-size: 20px;
+	color: #000;
+	border: 2px solid #000;
+	border-radius: 50%;
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
 }
 
-button {
-	padding: 5px 10px;
+.check-icon.completed {
+	color: #999;
+	border-color: #999;
+}
+
+.task-input {
+	flex-grow: 1;
+	font-size: 24px;
+	font-weight: 500;
 	border: none;
-	background: #007bff;
-	color: white;
-	cursor: pointer;
-}
-
-button:hover {
-	background: #0056b3;
-}
-
-td {
-	cursor: pointer;
-}
-
-input {
-	width: 100%;
-	padding: 5px;
-	font-size: 14px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
 	outline: none;
 }
 
-input:focus {
-	border-color: #007bff;
+.add-task:hover {
+	border-bottom: 1px solid rgba(169, 178, 235, 1);
+	cursor: pointer;
+}
+
+.task-item.dragging {
+	opacity: 0.3;
 }
