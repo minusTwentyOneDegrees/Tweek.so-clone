@@ -1,5 +1,6 @@
 body {
-	font-family: sans-serif;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 400;
 	background: #fff;
 	margin: 0;
 	padding: 0;
@@ -22,18 +23,22 @@ body {
 
 .task-item:hover {
 	border-bottom: 1px solid rgba(169, 178, 235, 1);
+	cursor: pointer;
 }
 
 .checkbox {
 	width: 18px;
 	height: 18px;
 	margin-right: 10px;
+	display: none;
+}
+.show-checkbox .checkbox {
 	display: inline-block;
 }
 
 .task-text {
 	font-size: 24px;
-	font-weight: 500;
+	font-weight: 300;
 	flex-grow: 1;
 	color: #000;
 }
@@ -76,4 +81,130 @@ body {
 
 .task-item.dragging {
 	opacity: 0.3;
+}
+
+/* ===== Modal Styles (from Modal.css) ===== */
+.modal {
+	background-color: rgba(221, 225, 251, 1);
+	padding-right: 40px;
+	padding-left: 40px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	border-radius: 5%;
+}
+.modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+	animation: fadeIn 0.2s ease-out forwards;
+}
+
+.modal-content {
+	width: 90%;
+	max-width: 600px;
+	border-radius: 20px;
+	padding: 20px;
+	box-shadow: 0 0 20px rgb(0, 0, 0);
+	transform: scale(0.9); /* изменено */
+	animation: scaleIn 0.2s ease-out forwards; /* изменено */
+}
+
+.modal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 18px;
+	margin-bottom: 10px;
+	color: #333;
+}
+
+.modal-title {
+	font-size: 28px;
+	font-weight: bold;
+	margin: 10px 0;
+	width: 100%;
+	border: none;
+	background: transparent;
+	outline: none;
+	color: #000000;
+}
+
+.modal-note {
+	width: 100%;
+	font-size: 16px;
+	border: none;
+	padding-top: 10px;
+	margin-top: 10px;
+	outline: none;
+	background: transparent;
+	resize: none; /* Убираем возможность изменять размер вручную */
+	overflow: hidden; /* Убираем полосы прокрутки */
+	min-height: 50px; /* Устанавливаем минимальную высоту */
+	height: auto; /* Делаем высоту автоматической */
+	max-height: 300px; /* Максимальная высота */
+	line-height: 1.5;
+}
+.modal-note:focus {
+	outline: none; /* Убираем outline при фокусе */
+}
+
+.modal-notes-placeholder {
+	color: #999;
+	cursor: pointer;
+}
+
+.modal-notes-input {
+	width: 100%;
+	font-size: 16px;
+	border: none;
+	padding-top: 10px;
+	margin-top: 10px;
+	outline: none;
+	background: transparent;
+	resize: none;
+}
+
+.checkmark {
+	cursor: pointer;
+	font-size: 20px;
+	user-select: none;
+}
+
+/* Animations */
+
+@keyframes scaleIn {
+	from {
+		transform: scale(0.9);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes fadeIn {
+	from {
+		background-color: rgba(0, 0, 0, 0);
+	}
+	to {
+		background-color: rgba(0, 0, 0, 0.5);
+	}
+}
+@keyframes fadeInScale {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
 }
