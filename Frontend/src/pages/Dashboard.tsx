@@ -50,6 +50,7 @@ const Dashboard = () => {
 				...tasks,
 				{ id: Date.now(), text: newTaskText, completed: false, date },
 			]
+			console.log(updatedTasks) // Данные по списку добавленных задач
 			setTasks(updatedTasks)
 			setNewTaskPerDate(prev => ({ ...prev, [date]: '' }))
 		}
@@ -80,13 +81,16 @@ const Dashboard = () => {
 			const targetIndex = tasks.indexOf(draggedOverTask!)
 			updatedTasks.splice(targetIndex, 0, draggedTask)
 			setTasks(updatedTasks)
+			console.log(updatedTasks) // Данные по перемещённой задаче + списку
 		} else {
 			// Перемещаем задачу между днями
+			const updatedTasks = tasks.filter(t => t.id !== draggedTask.id)
 			setTasks(prev =>
 				prev.map(t =>
 					t.id === draggedTask.id ? { ...t, date: targetDate } : t
 				)
 			)
+			console.log(updatedTasks) // Данные по перемещённой задаче + списку
 		}
 
 		setDraggedTask(null)
