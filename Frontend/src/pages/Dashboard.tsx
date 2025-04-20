@@ -75,21 +75,22 @@ const Dashboard = () => {
 	const handleDrop = (targetDate: string) => {
 		if (!draggedTask) return
 
-		if (draggedTask.date === targetDate) {
+		// Перемещаем задачу между днями
+		if (draggedTask.date !== targetDate) {
+			// Удаляем задачу из старого дня
+			const updatedTasks = tasks.filter(t => t.id !== draggedTask.id)
+			// Добавляем задачу в новый день
+			const updatedDraggedTask = { ...draggedTask, date: targetDate }
+			updatedTasks.push(updatedDraggedTask)
+
+			setTasks(updatedTasks)
+			console.log(updatedTasks) // Данные по перемещённой задаче + списку
+		} else {
 			// Перемещаем задачу внутри одного дня
 			const updatedTasks = tasks.filter(t => t.id !== draggedTask.id)
 			const targetIndex = tasks.indexOf(draggedOverTask!)
 			updatedTasks.splice(targetIndex, 0, draggedTask)
 			setTasks(updatedTasks)
-			console.log(updatedTasks) // Данные по перемещённой задаче + списку
-		} else {
-			// Перемещаем задачу между днями
-			const updatedTasks = tasks.filter(t => t.id !== draggedTask.id)
-			setTasks(prev =>
-				prev.map(t =>
-					t.id === draggedTask.id ? { ...t, date: targetDate } : t
-				)
-			)
 			console.log(updatedTasks) // Данные по перемещённой задаче + списку
 		}
 
