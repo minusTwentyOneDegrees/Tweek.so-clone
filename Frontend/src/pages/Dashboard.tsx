@@ -33,7 +33,12 @@ const Dashboard = () => {
 	const saveNewTask = () => {
 		const trimmed = newTask.trim()
 		if (trimmed) {
-			setTasks([...tasks, { id: Date.now(), text: trimmed, completed: false }])
+			const updatedTasks = [
+				...tasks,
+				{ id: Date.now(), text: trimmed, completed: false },
+			]
+			setTasks(updatedTasks)
+			console.log(updatedTasks) // updatedTasks можно использовать, как массив для сохранения данных
 		}
 		setNewTask('')
 	}
