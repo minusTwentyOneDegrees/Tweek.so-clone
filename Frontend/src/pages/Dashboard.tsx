@@ -67,6 +67,11 @@ const Dashboard = () => {
 
 	const closeModal = () => setActiveModalTask(null)
 
+	const deleteTask = (id: number) => {
+		setTasks(prev => prev.filter(task => task.id !== id))
+		closeModal()
+	}
+
 	const updateTask = (key: keyof Task, value: string) => {
 		if (!activeModalTask) return
 
@@ -124,7 +129,6 @@ const Dashboard = () => {
 						onDragEnd={handleDrop}
 						onClick={() => handleTaskClick(task)}
 					>
-						{/* Логика для отображения чекбокса на задачах */}
 						<img
 							className={`checkbox ${task.note?.trim() ? 'visible' : ''}`}
 							src={task.completed ? '/img/MetkaGr.svg' : '/img/Metka.svg'}
@@ -133,13 +137,12 @@ const Dashboard = () => {
 								display:
 									task.note === undefined || task.note.trim() === ''
 										? 'none'
-										: 'inline-block', // Скрытие чекбокса, если заметка пуста
+										: 'inline-block',
 							}}
 						/>
 						<span className={`task-text ${task.completed ? 'completed' : ''}`}>
 							{task.text}
 						</span>
-						{/* Иконка для переключения состояния задачи */}
 						<div
 							className={`check-icon ${task.completed ? 'completed' : ''}`}
 							onClick={e => {
@@ -173,14 +176,17 @@ const Dashboard = () => {
 			{activeModalTask && (
 				<div className='modal-overlay' onClick={closeModal}>
 					<div className='modal' onClick={e => e.stopPropagation()}>
-						<p>{new Date().toLocaleDateString()}</p>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-							}}
-						>
+						<div className='modal-header'>
+							<p>{new Date().toLocaleDateString()}</p>
+							<div
+								className='delete-icon'
+								onClick={() => deleteTask(activeModalTask.id)}
+							>
+								<img src='/img/Basket.svg' alt='Delete' />
+							</div>
+						</div>
+
+						<div className='modal-body'>
 							<input
 								className='modal-title'
 								type='text'
@@ -188,22 +194,14 @@ const Dashboard = () => {
 								onChange={e => updateTask('text', e.target.value)}
 							/>
 							{String(activeModalTask.note).trim() !== '' && (
-								<>
-									{console.log('note:', activeModalTask.note)}
-									<div
-										className={`check-icon ${
-											activeModalTask.completed ? 'completed' : ''
-										}`}
-										onClick={toggleTaskCompletedInModal}
-										style={{
-											cursor: 'pointer',
-											userSelect: 'none',
-											alignSelf: 'center',
-										}}
-									>
-										✔
-									</div>
-								</>
+								<div
+									className={`check-icon ${
+										activeModalTask.completed ? 'completed' : ''
+									}`}
+									onClick={toggleTaskCompletedInModal}
+								>
+									✔
+								</div>
 							)}
 						</div>
 						<hr />
