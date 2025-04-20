@@ -104,6 +104,7 @@ const Dashboard = () => {
 				task.id === id ? { ...task, completed: !task.completed } : task
 			)
 		)
+		console.log('Completed Task With ID: ' + id) //ID той задачи, которая была "Выполнена" вне модального ока
 	}
 
 	const handleTaskClick = (task: Task) => setActiveModalTask({ ...task })
@@ -111,12 +112,14 @@ const Dashboard = () => {
 	const closeModal = () => setActiveModalTask(null)
 
 	const deleteTask = (id: number) => {
+		console.log('Deleted Task With ID: ' + id) // Данные по удалённой задачке
 		setTasks(prev => prev.filter(task => task.id !== id))
 		closeModal()
 	}
 
 	const updateTask = (key: keyof Task, value: string) => {
 		if (!activeModalTask) return
+		console.log(`Task ID: ${activeModalTask.id}, Updating ${key} to:`, value) // Данные по изменениями заметок
 		setActiveModalTask(prev => (prev ? { ...prev, [key]: value } : null))
 	}
 
@@ -130,6 +133,7 @@ const Dashboard = () => {
 			prev.map(task => (task.id === updatedTask.id ? updatedTask : task))
 		)
 		setActiveModalTask(updatedTask)
+		console.log(updatedTask) // Данные той задачи, которая была "выполнена" через модальное окно
 	}
 
 	useEffect(() => {
