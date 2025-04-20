@@ -30,6 +30,27 @@ const getDayName = (dateStr: string) => {
 	return days[date.getDay()]
 }
 
+const formatDateForHeader = (dateStr: string) => {
+	const date = new Date(dateStr)
+	const day = String(date.getDate()).padStart(2, '0')
+	const month = String(date.getMonth() + 1).padStart(2, '0')
+	return `${day}.${month}`
+}
+
+const formatDateForModal = (dateStr: string) => {
+	const date = new Date(dateStr)
+	const options: Intl.DateTimeFormatOptions = {
+		weekday: 'short',
+		day: 'numeric',
+		month: 'short',
+		year: 'numeric',
+	}
+	const formatted = date.toLocaleDateString('ru-RU', options)
+	return (
+		formatted.charAt(0).toUpperCase() + formatted.slice(1).replace(/\.$/, '')
+	)
+}
+
 const Dashboard = () => {
 	const [tasks, setTasks] = useState<Task[]>([])
 	const [newTaskPerDate, setNewTaskPerDate] = useState<Record<string, string>>(
@@ -50,7 +71,7 @@ const Dashboard = () => {
 				...tasks,
 				{ id: Date.now(), text: newTaskText, completed: false, date },
 			]
-			console.log(updatedTasks) // Данные по списку добавленных задач
+			console.log(updatedTasks)
 			setTasks(updatedTasks)
 			setNewTaskPerDate(prev => ({ ...prev, [date]: '' }))
 		}
@@ -75,23 +96,18 @@ const Dashboard = () => {
 	const handleDrop = (targetDate: string) => {
 		if (!draggedTask) return
 
-		// Перемещаем задачу между днями
 		if (draggedTask.date !== targetDate) {
-			// Удаляем задачу из старого дня
 			const updatedTasks = tasks.filter(t => t.id !== draggedTask.id)
-			// Добавляем задачу в новый день
 			const updatedDraggedTask = { ...draggedTask, date: targetDate }
 			updatedTasks.push(updatedDraggedTask)
-
 			setTasks(updatedTasks)
-			console.log(updatedTasks) // Данные по перемещённой задаче + списку
+			console.log(updatedTasks)
 		} else {
-			// Перемещаем задачу внутри одного дня
 			const updatedTasks = tasks.filter(t => t.id !== draggedTask.id)
 			const targetIndex = tasks.indexOf(draggedOverTask!)
 			updatedTasks.splice(targetIndex, 0, draggedTask)
 			setTasks(updatedTasks)
-			console.log(updatedTasks) // Данные по перемещённой задаче + списку
+			console.log(updatedTasks)
 		}
 
 		setDraggedTask(null)
@@ -104,7 +120,7 @@ const Dashboard = () => {
 				task.id === id ? { ...task, completed: !task.completed } : task
 			)
 		)
-		console.log('Completed Task With ID: ' + id) //ID той задачи, которая была "Выполнена" вне модального ока
+		console.log('Completed Task With ID: ' + id)
 	}
 
 	const handleTaskClick = (task: Task) => setActiveModalTask({ ...task })
@@ -112,14 +128,14 @@ const Dashboard = () => {
 	const closeModal = () => setActiveModalTask(null)
 
 	const deleteTask = (id: number) => {
-		console.log('Deleted Task With ID: ' + id) // Данные по удалённой задачке
+		console.log('Deleted Task With ID: ' + id)
 		setTasks(prev => prev.filter(task => task.id !== id))
 		closeModal()
 	}
 
 	const updateTask = (key: keyof Task, value: string) => {
 		if (!activeModalTask) return
-		console.log(`Task ID: ${activeModalTask.id}, Updating ${key} to:`, value) // Данные по изменениями заметок
+		console.log(`Task ID: ${activeModalTask.id}, Updating ${key} to:`, value)
 		setActiveModalTask(prev => (prev ? { ...prev, [key]: value } : null))
 	}
 
@@ -133,7 +149,7 @@ const Dashboard = () => {
 			prev.map(task => (task.id === updatedTask.id ? updatedTask : task))
 		)
 		setActiveModalTask(updatedTask)
-		console.log(updatedTask) // Данные той задачи, которая была "выполнена" через модальное окно
+		console.log(updatedTask)
 	}
 
 	useEffect(() => {
@@ -155,13 +171,13 @@ const Dashboard = () => {
 					onDragOver={e => e.preventDefault()}
 				>
 					<div className='day-header'>
-						<span className='date'>{date}</span>
+						<span className='date'>{formatDateForHeader(date)}</span>
 						<span className='day'>{getDayName(date)}</span>
 					</div>
 					<hr className='day-separator' />
 					{tasks
 						.filter(task => task.date === date)
-						.map((task, index) => (
+						.map(task => (
 							<div
 								className={`task-item ${
 									draggedTask?.id === task.id ? 'dragging' : ''
@@ -203,9 +219,7 @@ const Dashboard = () => {
 						<div className='checkbox' />
 						<input
 							ref={el => {
-								if (el) {
-									inputRefs.current[date] = el
-								}
+								if (el) inputRefs.current[date] = el
 							}}
 							type='text'
 							className='task-input'
@@ -225,7 +239,7 @@ const Dashboard = () => {
 				<div className='modal-overlay' onClick={closeModal}>
 					<div className='modal' onClick={e => e.stopPropagation()}>
 						<div className='modal-header'>
-							<p>{activeModalTask.date}</p>
+							<p>{formatDateForModal(activeModalTask.date)}</p>
 							<div
 								className='delete-icon'
 								onClick={() => deleteTask(activeModalTask.id)}
