@@ -229,7 +229,7 @@ const Dashboard = () => {
 							}
 							onBlur={() => handleAddTask(date)}
 							onKeyDown={e => handleKeyDown(e, date)}
-							placeholder='Новая задача'
+							placeholder=''
 						/>
 					</div>
 				</div>
