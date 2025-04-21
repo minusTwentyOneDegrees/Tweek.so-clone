@@ -6,7 +6,7 @@ type Task = {
 	text: string
 	completed: boolean
 	note?: string
-	date: string // формат YYYY-MM-DD
+	date: string
 }
 
 const getCurrentDate = () => {
@@ -37,18 +37,25 @@ const formatDateForHeader = (dateStr: string) => {
 	return `${day}.${month}`
 }
 
-const formatDateForModal = (dateStr: string) => {
+const formatMonthYear = (dateStr: string) => {
+	const months = [
+		'Январь',
+		'Февраль',
+		'Март',
+		'Апрель',
+		'Май',
+		'Июнь',
+		'Июль',
+		'Август',
+		'Сентябрь',
+		'Октябрь',
+		'Ноябрь',
+		'Декабрь',
+	]
 	const date = new Date(dateStr)
-	const options: Intl.DateTimeFormatOptions = {
-		weekday: 'short',
-		day: 'numeric',
-		month: 'short',
-		year: 'numeric',
-	}
-	const formatted = date.toLocaleDateString('ru-RU', options)
-	return (
-		formatted.charAt(0).toUpperCase() + formatted.slice(1).replace(/\.$/, '')
-	)
+	const monthName = months[date.getMonth()]
+	const year = date.getFullYear()
+	return `${monthName} ${year}`
 }
 
 const Dashboard = () => {
@@ -63,6 +70,7 @@ const Dashboard = () => {
 	const inputRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
 	const weekDates = getWeekDates()
+	const headerMonth = formatMonthYear(weekDates[0])
 
 	const handleAddTask = (date: string) => {
 		const newTaskText = newTaskPerDate[date]?.trim()
@@ -71,7 +79,7 @@ const Dashboard = () => {
 				...tasks,
 				{ id: Date.now(), text: newTaskText, completed: false, date },
 			]
-			console.log(updatedTasks)
+			console.log(updatedTasks) // Данные по списку добавленных задач
 			setTasks(updatedTasks)
 			setNewTaskPerDate(prev => ({ ...prev, [date]: '' }))
 		}
@@ -101,13 +109,13 @@ const Dashboard = () => {
 			const updatedDraggedTask = { ...draggedTask, date: targetDate }
 			updatedTasks.push(updatedDraggedTask)
 			setTasks(updatedTasks)
-			console.log(updatedTasks)
+			console.log(updatedTasks) // Данные по перемещённой задаче + списку
 		} else {
 			const updatedTasks = tasks.filter(t => t.id !== draggedTask.id)
 			const targetIndex = tasks.indexOf(draggedOverTask!)
 			updatedTasks.splice(targetIndex, 0, draggedTask)
 			setTasks(updatedTasks)
-			console.log(updatedTasks)
+			console.log(updatedTasks) // Данные по перемещённой задаче + списку
 		}
 
 		setDraggedTask(null)
@@ -120,7 +128,12 @@ const Dashboard = () => {
 				task.id === id ? { ...task, completed: !task.completed } : task
 			)
 		)
-		console.log('Completed Task With ID: ' + id)
+		console.log(
+			`Completed Task With ID: ${id}, completed: ${!tasks.find(
+				task => task.id === id
+			)?.completed}`
+		)
+		//ID той задачи, которая была "Выполнена" вне модального ока
 	}
 
 	const handleTaskClick = (task: Task) => setActiveModalTask({ ...task })
@@ -128,14 +141,14 @@ const Dashboard = () => {
 	const closeModal = () => setActiveModalTask(null)
 
 	const deleteTask = (id: number) => {
-		console.log('Deleted Task With ID: ' + id)
 		setTasks(prev => prev.filter(task => task.id !== id))
+		console.log('Deleted Task With ID: ' + id) // Данные по удалённой задачке
 		closeModal()
 	}
 
 	const updateTask = (key: keyof Task, value: string) => {
 		if (!activeModalTask) return
-		console.log(`Task ID: ${activeModalTask.id}, Updating ${key} to:`, value)
+		console.log(`Task ID: ${activeModalTask.id}, Updating ${key} to:`, value) // Данные по изменениями заметок
 		setActiveModalTask(prev => (prev ? { ...prev, [key]: value } : null))
 	}
 
@@ -149,7 +162,7 @@ const Dashboard = () => {
 			prev.map(task => (task.id === updatedTask.id ? updatedTask : task))
 		)
 		setActiveModalTask(updatedTask)
-		console.log(updatedTask)
+		console.log(updatedTask) // Данные той задачи, которая была "выполнена" через модальное окно
 	}
 
 	useEffect(() => {
@@ -162,84 +175,99 @@ const Dashboard = () => {
 	}, [activeModalTask])
 
 	return (
-		<div className='task-list'>
-			{weekDates.map(date => (
-				<div
-					key={date}
-					className='day-column'
-					onDrop={() => handleDrop(date)}
-					onDragOver={e => e.preventDefault()}
-				>
-					<div className='day-header'>
-						<span className='date'>{formatDateForHeader(date)}</span>
-						<span className='day'>{getDayName(date)}</span>
-					</div>
-					<hr className='day-separator' />
-					{tasks
-						.filter(task => task.date === date)
-						.map(task => (
-							<div
-								className={`task-item ${
-									draggedTask?.id === task.id ? 'dragging' : ''
-								}`}
-								key={task.id}
-								draggable
-								onDragStart={() => handleDragStart(task)}
-								onDragOver={e => handleDragOver(e, task)}
-								onClick={() => handleTaskClick(task)}
-							>
-								<img
-									className={`checkbox ${task.note?.trim() ? 'visible' : ''}`}
-									src={task.completed ? '/img/MetkaGr.svg' : '/img/Metka.svg'}
-									alt='checkbox'
-									style={{
-										display:
-											task.note === undefined || task.note.trim() === ''
-												? 'none'
-												: 'inline-block',
-									}}
-								/>
-								<span
-									className={`task-text ${task.completed ? 'completed' : ''}`}
-								>
-									{task.text}
-								</span>
-								<div
-									className={`check-icon ${task.completed ? 'completed' : ''}`}
-									onClick={e => {
-										e.stopPropagation()
-										toggleCompleted(task.id)
-									}}
-								>
-									✔
-								</div>
-							</div>
-						))}
-					<div className='task-item add-task'>
-						<div className='checkbox' />
-						<input
-							ref={el => {
-								if (el) inputRefs.current[date] = el
-							}}
-							type='text'
-							className='task-input'
-							value={newTaskPerDate[date] || ''}
-							onChange={e =>
-								setNewTaskPerDate(prev => ({ ...prev, [date]: e.target.value }))
-							}
-							onBlur={() => handleAddTask(date)}
-							onKeyDown={e => handleKeyDown(e, date)}
-							placeholder=''
-						/>
-					</div>
+		<div className='dashboard'>
+			<div className='dashboard-header'>
+				<span className='month-year'>{headerMonth}</span>
+				<div className='nav-buttons'>
+					<button className='nav-button'>&lt;</button>
+					<button className='nav-button'>&gt;</button>
 				</div>
-			))}
+			</div>
+
+			<div className='task-list'>
+				{weekDates.map(date => (
+					<div
+						key={date}
+						className='day-column'
+						onDrop={() => handleDrop(date)}
+						onDragOver={e => e.preventDefault()}
+					>
+						<div className='day-header'>
+							<span className='date'>{formatDateForHeader(date)}</span>
+							<span className='day'>{getDayName(date)}</span>
+						</div>
+						<hr className='day-separator' />
+						{tasks
+							.filter(task => task.date === date)
+							.map(task => (
+								<div
+									className={`task-item ${
+										draggedTask?.id === task.id ? 'dragging' : ''
+									}`}
+									key={task.id}
+									draggable
+									onDragStart={() => handleDragStart(task)}
+									onDragOver={e => handleDragOver(e, task)}
+									onClick={() => handleTaskClick(task)}
+								>
+									<img
+										className={`checkbox ${task.note?.trim() ? 'visible' : ''}`}
+										src={task.completed ? '/img/MetkaGr.svg' : '/img/Metka.svg'}
+										alt='checkbox'
+										style={{
+											display:
+												task.note === undefined || task.note.trim() === ''
+													? 'none'
+													: 'inline-block',
+										}}
+									/>
+									<span
+										className={`task-text ${task.completed ? 'completed' : ''}`}
+									>
+										{task.text}
+									</span>
+									<div
+										className={`check-icon ${
+											task.completed ? 'completed' : ''
+										}`}
+										onClick={e => {
+											e.stopPropagation()
+											toggleCompleted(task.id)
+										}}
+									>
+										✔
+									</div>
+								</div>
+							))}
+						<div className='task-item add-task'>
+							<div className='checkbox' />
+							<input
+								ref={el => {
+									if (el) inputRefs.current[date] = el
+								}}
+								type='text'
+								className='task-input'
+								value={newTaskPerDate[date] || ''}
+								onChange={e =>
+									setNewTaskPerDate(prev => ({
+										...prev,
+										[date]: e.target.value,
+									}))
+								}
+								onBlur={() => handleAddTask(date)}
+								onKeyDown={e => handleKeyDown(e, date)}
+								placeholder=''
+							/>
+						</div>
+					</div>
+				))}
+			</div>
 
 			{activeModalTask && (
 				<div className='modal-overlay' onClick={closeModal}>
 					<div className='modal' onClick={e => e.stopPropagation()}>
 						<div className='modal-header'>
-							<p>{formatDateForModal(activeModalTask.date)}</p>
+							<p>{activeModalTask.date}</p>
 							<div
 								className='delete-icon'
 								onClick={() => deleteTask(activeModalTask.id)}
