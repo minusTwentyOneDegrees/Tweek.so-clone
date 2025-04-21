@@ -71,6 +71,7 @@ body {
 .checkbox {
 	width: 18px;
 	height: 18px;
+	flex-shrink: 0;
 	margin-right: 10px;
 	display: none;
 }
@@ -84,12 +85,9 @@ body {
 	font-weight: 300;
 	flex-grow: 1;
 	color: #000;
-	overflow: hidden; /* Скрывает переполнение */
-	text-overflow: ellipsis; /* Добавляет многоточие, если текст выходит за пределы */
-	white-space: nowrap; /* Запрещает перенос текста на новую строку */
-	max-width: calc(
-		100% - 40px
-	); /* Ограничивает ширину текста, чтобы оставить место для иконки */
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .check-icon {
@@ -101,8 +99,9 @@ body {
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	width: 24px; /* Фиксированная ширина */
-	height: 24px; /* Фиксированная высота */
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0;
 }
 
 .check-icon.completed {
