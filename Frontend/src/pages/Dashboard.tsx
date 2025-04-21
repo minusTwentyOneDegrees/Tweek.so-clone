@@ -14,8 +14,8 @@ const getCurrentDate = () => {
 	return now.toISOString().split('T')[0]
 }
 
-const getWeekDates = () => {
-	const start = new Date()
+const getWeekDates = (baseDate: Date) => {
+	const start = new Date(baseDate)
 	start.setDate(start.getDate() - start.getDay() + 1) // Пн
 	return Array.from({ length: 7 }, (_, i) => {
 		const d = new Date(start)
@@ -57,6 +57,14 @@ const formatMonthYear = (dateStr: string) => {
 	const year = date.getFullYear()
 	return `${monthName} ${year}`
 }
+//... Тут можешь написать функцию, которая будет записывать данные в массив
+//Но только обеспечь её условия, чтобы она отрабатывала первее всего
+//Функция, которая берёт все заметки
+const getAllNotes = (tasks: Task[]) => {
+	return tasks
+		.filter(task => task.note && task.note.trim() !== '')
+		.map(task => task.note)
+}
 
 const Dashboard = () => {
 	const [tasks, setTasks] = useState<Task[]>([])
@@ -66,20 +74,23 @@ const Dashboard = () => {
 	const [draggedTask, setDraggedTask] = useState<Task | null>(null)
 	const [draggedOverTask, setDraggedOverTask] = useState<Task | null>(null)
 	const [activeModalTask, setActiveModalTask] = useState<Task | null>(null)
+	const [currentDate, setCurrentDate] = useState<Date>(new Date())
 
 	const inputRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
-	const weekDates = getWeekDates()
+	const weekDates = getWeekDates(currentDate)
 	const headerMonth = formatMonthYear(weekDates[0])
 
-	// useEffect для изменения заголовка и иконки страницы
+	// Тут можно подгружать данные, всё это отрабаетывает в самом начале
 	useEffect(() => {
-		document.title = 'My calendar — Tweel.so' // Заголовок страницы
+		document.title = 'My calendar — Tweek.so' // Заголовок страницы
 
 		const link = document.querySelector("link[rel='icon']") as HTMLLinkElement
 		if (link) {
-			link.href = '/img/faviconv2.ico' // Путь к новой иконке
+			link.href = '/img/faviconv2.ico' // Путь к иконке
 		}
+		const notes = getAllNotes(tasks)
+		console.log('Все заметки:', notes) // Вывод всех заметок в консоль
 	}, [])
 
 	const handleAddTask = (date: string) => {
@@ -141,9 +152,8 @@ const Dashboard = () => {
 		console.log(
 			`Completed Task With ID: ${id}, completed: ${!tasks.find(
 				task => task.id === id
-			)?.completed}`
+			)?.completed}` //ID той задачи, которая была "Выполнена" вне модального ока
 		)
-		//ID той задачи, которая была "Выполнена" вне модального ока
 	}
 
 	const handleTaskClick = (task: Task) => setActiveModalTask({ ...task })
@@ -184,13 +194,33 @@ const Dashboard = () => {
 		)
 	}, [activeModalTask])
 
+	const handleWeekChange = (direction: 'prev' | 'next') => {
+		const newDate = new Date(currentDate)
+		if (direction === 'prev') {
+			newDate.setDate(newDate.getDate() - 7)
+		} else if (direction === 'next') {
+			newDate.setDate(newDate.getDate() + 7)
+		}
+		setCurrentDate(newDate)
+	}
+
 	return (
 		<div className='dashboard'>
 			<div className='dashboard-header'>
 				<span className='month-year'>{headerMonth}</span>
 				<div className='nav-buttons'>
-					<button className='nav-button'>&lt;</button>
-					<button className='nav-button'>&gt;</button>
+					<button
+						className='nav-button'
+						onClick={() => handleWeekChange('prev')}
+					>
+						&lt;
+					</button>
+					<button
+						className='nav-button'
+						onClick={() => handleWeekChange('next')}
+					>
+						&gt;
+					</button>
 				</div>
 			</div>
 
