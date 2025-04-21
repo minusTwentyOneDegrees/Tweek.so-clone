@@ -1,0 +1,54 @@
+body {
+	font-family: 'Roboto', sans-serif;
+}
+
+.login-page {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	background-color: #afafaf;
+}
+.login-box {
+	background: rgba(248, 232, 226, 1);
+	padding: 40px;
+	border-radius: 8px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+	width: 100%;
+	max-width: 400px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.input-field {
+	border: none;
+	outline: none;
+	border-radius: 0;
+	background-color: transparent;
+	border-bottom: 1px solid #ccc;
+	padding: 10px;
+	font-family: 'Roboto', sans-serif;
+}
+
+.login-button {
+	padding: 10px;
+	width: 100%;
+	border: none;
+	border-radius: 25px;
+	background-color: rgba(0, 0, 0, 1);
+	color: white;
+	font-size: 16px;
+	cursor: pointer;
+}
+.login-title {
+	font-family: 'Roboto', sans-serif;
+	font-weight: 700;
+	font-size: 24px;
+	margin-bottom: 20px;
+	text-align: center;
+}
+
+.login-button.google {
+	background-color: #db4437;
+}
