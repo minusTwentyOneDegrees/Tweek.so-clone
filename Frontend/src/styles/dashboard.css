@@ -190,6 +190,7 @@ body {
 }
 
 .modal-note {
+	font-family: 'Roboto', sans-serif;
 	width: 100%;
 	font-size: 16px;
 	border: none;
@@ -285,4 +286,16 @@ body {
 .task-text.completed {
 	text-decoration: line-through;
 	color: #999;
+}
+
+.day-header.today .date {
+	color: rgba(81, 103, 244, 1);
+}
+
+.day-header.today .day {
+	color: rgba(185, 194, 251, 1);
+}
+
+.day-separator.today {
+	border-color: rgba(81, 103, 244, 1);
 }
