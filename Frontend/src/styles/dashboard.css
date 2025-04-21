@@ -7,9 +7,48 @@ body {
 }
 
 .task-list {
-	width: 100%;
-	max-width: 600px;
-	margin: 0 auto;
+	display: grid;
+	grid-template-columns: repeat(
+		auto-fill,
+		minmax(280px, 1fr)
+	); /* Каждая колонка будет иметь минимальную ширину 220px */
+	gap: 20px;
+	padding: 20px;
+	box-sizing: border-box;
+}
+
+.day-column {
+	background-color: transparent; /* Убираем фон */
+	border-radius: 8px;
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden; /* Чтобы избежать переполнения */
+}
+
+.day-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	margin-bottom: 10px;
+}
+
+.date {
+	font-size: 24px;
+	font-weight: 700;
+	color: #000;
+}
+
+.day {
+	font-size: 18px;
+	font-weight: 400;
+	color: #ccc;
+}
+
+.day-separator {
+	border: none;
+	border-top: 3px solid #000;
+	margin: 10px 0;
 }
 
 .task-item {
@@ -19,6 +58,9 @@ body {
 	border-bottom: 1px solid #e0e0e0;
 	padding: 12px 10px;
 	transition: border-color 0.3s;
+	background: white;
+	border-radius: 4px;
+	margin-bottom: 6px;
 }
 
 .task-item:hover {
@@ -38,15 +80,16 @@ body {
 }
 
 .task-text {
-	font-size: 24px;
+	font-size: 20px;
 	font-weight: 300;
 	flex-grow: 1;
 	color: #000;
-}
-
-.task-text.completed {
-	color: #999;
-	text-decoration: line-through;
+	overflow: hidden; /* Скрывает переполнение */
+	text-overflow: ellipsis; /* Добавляет многоточие, если текст выходит за пределы */
+	white-space: nowrap; /* Запрещает перенос текста на новую строку */
+	max-width: calc(
+		100% - 40px
+	); /* Ограничивает ширину текста, чтобы оставить место для иконки */
 }
 
 .check-icon {
@@ -54,25 +97,28 @@ body {
 	color: #000;
 	border: 2px solid #000;
 	border-radius: 50%;
-	width: 24px;
-	height: 24px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
+	width: 24px; /* Фиксированная ширина */
+	height: 24px; /* Фиксированная высота */
 }
 
 .check-icon.completed {
 	color: #999;
 	border-color: #999;
 }
-
 .task-input {
 	flex-grow: 1;
-	font-size: 24px;
+	font-size: 20px;
 	font-weight: 500;
 	border: none;
 	outline: none;
+	background: transparent;
+	white-space: nowrap; /* Запрещаем перенос текста */
+	overflow: hidden; /* Скрываем текст */
+	text-overflow: ellipsis; /* Добавляем многоточие, если текст выходит за пределы */
 }
 
 .add-task:hover {
@@ -84,7 +130,6 @@ body {
 	opacity: 0.3;
 }
 
-/* ===== Modal Styles ===== */
 .modal-overlay {
 	position: fixed;
 	top: 0;
@@ -143,12 +188,6 @@ body {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-}
-
-.check-icon {
-	cursor: pointer;
-	user-select: none;
-	align-self: center;
 }
 
 .modal-note {
