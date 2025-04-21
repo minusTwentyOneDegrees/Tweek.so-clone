@@ -225,82 +225,92 @@ const Dashboard = () => {
 			</div>
 
 			<div className='task-list'>
-				{weekDates.map(date => (
-					<div
-						key={date}
-						className='day-column'
-						onDrop={() => handleDrop(date)}
-						onDragOver={e => e.preventDefault()}
-					>
-						<div className='day-header'>
-							<span className='date'>{formatDateForHeader(date)}</span>
-							<span className='day'>{getDayName(date)}</span>
-						</div>
-						<hr className='day-separator' />
-						{tasks
-							.filter(task => task.date === date)
-							.map(task => (
-								<div
-									className={`task-item ${
-										draggedTask?.id === task.id ? 'dragging' : ''
-									}`}
-									key={task.id}
-									draggable
-									onDragStart={() => handleDragStart(task)}
-									onDragOver={e => handleDragOver(e, task)}
-									onClick={() => handleTaskClick(task)}
-								>
-									<img
-										className={`checkbox ${task.note?.trim() ? 'visible' : ''}`}
-										src={task.completed ? '/img/MetkaGr.svg' : '/img/Metka.svg'}
-										alt='checkbox'
-										style={{
-											display:
-												task.note === undefined || task.note.trim() === ''
-													? 'none'
-													: 'inline-block',
-										}}
-									/>
-									<span
-										className={`task-text ${task.completed ? 'completed' : ''}`}
-									>
-										{task.text}
-									</span>
+				{weekDates.map(date => {
+					const isToday = date === getCurrentDate()
+
+					return (
+						<div
+							key={date}
+							className='day-column'
+							onDrop={() => handleDrop(date)}
+							onDragOver={e => e.preventDefault()}
+						>
+							<div className={`day-header ${isToday ? 'today' : ''}`}>
+								<span className='date'>{formatDateForHeader(date)}</span>
+								<span className='day'>{getDayName(date)}</span>
+							</div>
+							<hr className={`day-separator ${isToday ? 'today' : ''}`} />
+							{tasks
+								.filter(task => task.date === date)
+								.map(task => (
 									<div
-										className={`check-icon ${
-											task.completed ? 'completed' : ''
+										className={`task-item ${
+											draggedTask?.id === task.id ? 'dragging' : ''
 										}`}
-										onClick={e => {
-											e.stopPropagation()
-											toggleCompleted(task.id)
-										}}
+										key={task.id}
+										draggable
+										onDragStart={() => handleDragStart(task)}
+										onDragOver={e => handleDragOver(e, task)}
+										onClick={() => handleTaskClick(task)}
 									>
-										✔
+										<img
+											className={`checkbox ${
+												task.note?.trim() ? 'visible' : ''
+											}`}
+											src={
+												task.completed ? '/img/MetkaGr.svg' : '/img/Metka.svg'
+											}
+											alt='checkbox'
+											style={{
+												display:
+													task.note === undefined || task.note.trim() === ''
+														? 'none'
+														: 'inline-block',
+											}}
+										/>
+										<span
+											className={`task-text ${
+												task.completed ? 'completed' : ''
+											}`}
+										>
+											{task.text}
+										</span>
+										<div
+											className={`check-icon ${
+												task.completed ? 'completed' : ''
+											}`}
+											onClick={e => {
+												e.stopPropagation()
+												toggleCompleted(task.id)
+											}}
+										>
+											✔
+										</div>
 									</div>
-								</div>
-							))}
-						<div className='task-item add-task'>
-							<div className='checkbox' />
-							<input
-								ref={el => {
-									if (el) inputRefs.current[date] = el
-								}}
-								type='text'
-								className='task-input'
-								value={newTaskPerDate[date] || ''}
-								onChange={e =>
-									setNewTaskPerDate(prev => ({
-										...prev,
-										[date]: e.target.value,
-									}))
-								}
-								onBlur={() => handleAddTask(date)}
-								onKeyDown={e => handleKeyDown(e, date)}
-								placeholder=''
-							/>
+								))}
+							<div className='task-item add-task'>
+								<div className='checkbox' />
+								<input
+									ref={el => {
+										if (el) inputRefs.current[date] = el
+									}}
+									type='text'
+									className='task-input'
+									value={newTaskPerDate[date] || ''}
+									onChange={e =>
+										setNewTaskPerDate(prev => ({
+											...prev,
+											[date]: e.target.value,
+										}))
+									}
+									onBlur={() => handleAddTask(date)}
+									onKeyDown={e => handleKeyDown(e, date)}
+									placeholder=''
+								/>
+							</div>
 						</div>
-					</div>
-				))}
+					)
+				})}
 			</div>
 
 			{activeModalTask && (
