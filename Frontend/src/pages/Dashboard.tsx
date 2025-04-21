@@ -72,6 +72,16 @@ const Dashboard = () => {
 	const weekDates = getWeekDates()
 	const headerMonth = formatMonthYear(weekDates[0])
 
+	// useEffect для изменения заголовка и иконки страницы
+	useEffect(() => {
+		document.title = 'My calendar — Tweel.so' // Заголовок страницы
+
+		const link = document.querySelector("link[rel='icon']") as HTMLLinkElement
+		if (link) {
+			link.href = '/img/faviconv2.ico' // Путь к новой иконке
+		}
+	}, [])
+
 	const handleAddTask = (date: string) => {
 		const newTaskText = newTaskPerDate[date]?.trim()
 		if (newTaskText) {
