@@ -1,7 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react'
 import '../styles/dashboard.css'
+import {
+	getCurrentDate,
+	getWeekDates,
+	getDayName,
+	formatDateForHeader,
+	formatMonthYear,
+} from '../utils/dateUtils'
 
-type Task = {
+import {
+	handleTaskClick,
+	closeModal,
+	toggleTaskCompletedInModal,
+} from '../utils/modalUtils'
+
+export type Task = {
 	id: number
 	text: string
 	completed: boolean
@@ -9,54 +22,6 @@ type Task = {
 	date: string
 }
 
-const getCurrentDate = () => {
-	const now = new Date()
-	return now.toISOString().split('T')[0]
-}
-
-const getWeekDates = (baseDate: Date) => {
-	const start = new Date(baseDate)
-	start.setDate(start.getDate() - start.getDay() + 1) // Пн
-	return Array.from({ length: 7 }, (_, i) => {
-		const d = new Date(start)
-		d.setDate(start.getDate() + i)
-		return d.toISOString().split('T')[0]
-	})
-}
-
-const getDayName = (dateStr: string) => {
-	const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
-	const date = new Date(dateStr)
-	return days[date.getDay()]
-}
-
-const formatDateForHeader = (dateStr: string) => {
-	const date = new Date(dateStr)
-	const day = String(date.getDate()).padStart(2, '0')
-	const month = String(date.getMonth() + 1).padStart(2, '0')
-	return `${day}.${month}`
-}
-
-const formatMonthYear = (dateStr: string) => {
-	const months = [
-		'Январь',
-		'Февраль',
-		'Март',
-		'Апрель',
-		'Май',
-		'Июнь',
-		'Июль',
-		'Август',
-		'Сентябрь',
-		'Октябрь',
-		'Ноябрь',
-		'Декабрь',
-	]
-	const date = new Date(dateStr)
-	const monthName = months[date.getMonth()]
-	const year = date.getFullYear()
-	return `${monthName} ${year}`
-}
 //... Тут можешь написать функцию, которая будет записывать данные в массив
 //Но только обеспечь её условия, чтобы она отрабатывала первее всего
 //Функция, которая берёт все заметки
@@ -156,33 +121,16 @@ const Dashboard = () => {
 		)
 	}
 
-	const handleTaskClick = (task: Task) => setActiveModalTask({ ...task })
-
-	const closeModal = () => setActiveModalTask(null)
-
 	const deleteTask = (id: number) => {
 		setTasks(prev => prev.filter(task => task.id !== id))
 		console.log('Deleted Task With ID: ' + id) // Данные по удалённой задачке
-		closeModal()
+		closeModal(setActiveModalTask)
 	}
 
 	const updateTask = (key: keyof Task, value: string) => {
 		if (!activeModalTask) return
 		console.log(`Task ID: ${activeModalTask.id}, Updating ${key} to:`, value) // Данные по изменениями заметок
 		setActiveModalTask(prev => (prev ? { ...prev, [key]: value } : null))
-	}
-
-	const toggleTaskCompletedInModal = () => {
-		if (!activeModalTask) return
-		const updatedTask = {
-			...activeModalTask,
-			completed: !activeModalTask.completed,
-		}
-		setTasks(prev =>
-			prev.map(task => (task.id === updatedTask.id ? updatedTask : task))
-		)
-		setActiveModalTask(updatedTask)
-		console.log(updatedTask) // Данные той задачи, которая была "выполнена" через модальное окно
 	}
 
 	useEffect(() => {
@@ -251,7 +199,7 @@ const Dashboard = () => {
 										draggable
 										onDragStart={() => handleDragStart(task)}
 										onDragOver={e => handleDragOver(e, task)}
-										onClick={() => handleTaskClick(task)}
+										onClick={() => handleTaskClick(task, setActiveModalTask)}
 									>
 										<img
 											className={`checkbox ${
@@ -314,7 +262,10 @@ const Dashboard = () => {
 			</div>
 
 			{activeModalTask && (
-				<div className='modal-overlay' onClick={closeModal}>
+				<div
+					className='modal-overlay'
+					onClick={() => closeModal(setActiveModalTask)}
+				>
 					<div className='modal' onClick={e => e.stopPropagation()}>
 						<div className='modal-header'>
 							<p>{activeModalTask.date}</p>
@@ -338,7 +289,13 @@ const Dashboard = () => {
 									className={`check-icon ${
 										activeModalTask.completed ? 'completed' : ''
 									}`}
-									onClick={toggleTaskCompletedInModal}
+									onClick={() =>
+										toggleTaskCompletedInModal(
+											activeModalTask,
+											setTasks,
+											setActiveModalTask
+										)
+									}
 								>
 									✔
 								</div>
