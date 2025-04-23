@@ -102,6 +102,7 @@ body {
 	width: 24px;
 	height: 24px;
 	flex-shrink: 0;
+	user-select: none;
 }
 
 .check-icon.completed {
