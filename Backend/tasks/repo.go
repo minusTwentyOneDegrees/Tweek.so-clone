@@ -45,17 +45,16 @@ func (r *Repository) GetAllByUser(userID int) ([]Task, error) {
 	return tasks, nil
 }
 
-// Создать задачу с подзадачами
-func (r *Repository) CreateTask(task Task, userID int) (int, error) {
+// Создать задачу и подзадачи
+func (r *Repository) CreateTask(task Task, userID int) error {
 	var taskID int
 	err := r.db.QueryRow(`
         INSERT INTO tasks (title, date, completed, user_id)
         VALUES ($1, $2, $3, $4)
         RETURNING id
     `, task.Title, task.Date, task.Completed, userID).Scan(&taskID)
-
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	for _, sub := range task.Subtasks {
@@ -63,13 +62,31 @@ func (r *Repository) CreateTask(task Task, userID int) (int, error) {
             INSERT INTO subtasks (title, completed, task_id)
             VALUES ($1, $2, $3)
         `, sub.Title, sub.Completed, taskID)
-
 		if err != nil {
-			return 0, err
+			return err
 		}
 	}
 
-	return taskID, nil
+	return nil
+}
+
+// Обновить задачу
+func (r *Repository) Update(task Task) error {
+	_, err := r.db.Exec(`
+        UPDATE tasks
+        SET title = $1, date = $2, completed = $3
+        WHERE id = $4
+    `, task.Title, task.Date, task.Completed, task.ID)
+	return err
+}
+
+// Удалить задачу
+func (r *Repository) Delete(id int) error {
+	_, err := r.db.Exec(`
+        DELETE FROM tasks
+        WHERE id = $1
+    `, id)
+	return err
 }
 
 // Получить подзадачи по ID задачи
