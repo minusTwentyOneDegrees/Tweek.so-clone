@@ -8,19 +8,14 @@ func NewService(r *Repository) *Service {
 	return &Service{repo: r}
 }
 
-// Получить все задачи
-func (s *Service) GetAllTasks() ([]Task, error) {
-	return s.repo.GetAll()
-}
-
-// Получить одну задачу
-func (s *Service) GetTaskByID(id int) (*Task, error) {
-	return s.repo.GetByID(id)
+// Получить все задачи пользователя
+func (s *Service) GetAllTasks(userID int) ([]Task, error) {
+	return s.repo.GetAllByUser(userID)
 }
 
 // Создать задачу
-func (s *Service) CreateTask(task Task) error {
-	return s.repo.Create(task)
+func (s *Service) CreateTask(task Task, userID int) error {
+	return s.repo.CreateTask(task, userID)
 }
 
 // Обновить задачу
