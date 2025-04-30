@@ -8,9 +8,9 @@ import (
 func RegisterRoutes(rg *gin.RouterGroup, h *Handler) {
 	tasks := rg.Group("/tasks")
 	{
-		tasks.GET("/:id", h.GetTaskByID)   // Получить все задачи по ID
-		tasks.POST("/", h.CreateTask)      // Создать задачу
-		tasks.PUT("/:id", h.UpdateTask)    // Обновить задачу
-		tasks.DELETE("/:id", h.DeleteTask) // Удалить задачу
+		tasks.GET("/", h.GetAllTasks)    
+		tasks.POST("/", h.CreateTask)      
+		tasks.PUT("/:id", h.UpdateTask)    
+		tasks.DELETE("/:id", h.DeleteTask) 
 	}
 }
