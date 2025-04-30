@@ -7,10 +7,18 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var users = make(map[string]User) // Временно in-memory (в будущем в БД)
+type Handler struct {
+	jwtKey []byte
+}
+
+func NewHandler(jwtKey []byte) *Handler {
+	return &Handler{jwtKey: jwtKey}
+}
+
+var users = make(map[string]User) // временная база
 var userIDCounter = 1
 
-func Register(c *gin.Context) {
+func (h *Handler) Register(c *gin.Context) {
 	var input User
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
@@ -40,7 +48,7 @@ func Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
 }
 
-func Login(c *gin.Context) {
+func (h *Handler) Login(c *gin.Context) {
 	var input User
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
@@ -59,7 +67,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, err := GenerateToken(user.ID)
+	token, err := GenerateToken(user.ID, h.jwtKey)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
 		return
