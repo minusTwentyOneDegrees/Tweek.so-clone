@@ -6,14 +6,12 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtKey = []byte("your_super_secret_key") // желательно вынести в .env
-
 type Claims struct {
 	UserID int `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(userID int) (string, error) {
+func GenerateToken(userID int, jwtKey []byte) (string, error) {
 	claims := &Claims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -25,7 +23,7 @@ func GenerateToken(userID int) (string, error) {
 	return token.SignedString(jwtKey)
 }
 
-func ParseToken(tokenStr string) (*Claims, error) {
+func ParseToken(tokenStr string, jwtKey []byte) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return jwtKey, nil
 	})
