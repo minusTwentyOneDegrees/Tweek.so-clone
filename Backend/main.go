@@ -2,36 +2,43 @@ package main
 
 import (
 	"log"
-	"net/http"
 
-	"github.com/joho/godotenv"
+	"github.com/gin-gonic/gin"
 
-	"Backend/config"
+	config "Backend/conf"
 	"Backend/db"
 	"Backend/router"
+	"Backend/tasks"
 )
 
 func main() {
-	// Загружаем переменные из .env (например, PORT, DATABASE_URL)
-	err := godotenv.Load()
+	// 1. Загружаем конфиг
+	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Println("No .env file found, using system env vars")
+		log.Fatalf("Ошибка при загрузке конфига: %v", err)
 	}
 
-	// Загружаем конфигурацию
-	cfg := config.LoadConfig()
-
-	// Подключаемся к базе данных
-	database, err := db.Connect(cfg.DatabaseURL)
+	// 2. Подключаем БД
+	database, err := db.Init(cfg.DatabaseURL)
 	if err != nil {
-		log.Fatalf("DB connection error: %v", err)
+		log.Fatalf("Ошибка подключения к БД: %v", err)
 	}
 	defer database.Close()
 
-	// Настраиваем маршруты
-	r := router.Setup(database)
+	// 3. Инициализируем бизнес-логику задач
+	repo := tasks.NewRepository(database)
+	service := tasks.NewService(repo)
+	handler := tasks.NewHandler(service)
 
-	// Запускаем сервер
-	log.Printf("Server is running on port %s", cfg.Port)
-	log.Fatal(http.ListenAndServe(":"+cfg.Port, r))
+	// 4. Создаём роутер
+	r := gin.Default()
+
+	// 5. Настраиваем роуты
+	router.SetupRoutes(r, handler, cfg)
+
+	// 6. Запускаем сервер
+	log.Printf("Сервер запущен на порту %s", cfg.Port)
+	if err := r.Run(":" + cfg.Port); err != nil {
+		log.Fatalf("Ошибка запуска сервера: %v", err)
+	}
 }
