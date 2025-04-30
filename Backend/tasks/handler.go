@@ -15,32 +15,38 @@ func NewHandler(s *Service) *Handler {
 	return &Handler{service: s}
 }
 
-// GET /tasks/:id
-func (h *Handler) GetTaskByID(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid task id"})
+// GET /tasks
+func (h *Handler) GetAllTasks(c *gin.Context) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "user_id not found in context"})
 		return
 	}
 
-	task, err := h.service.GetAllTasks(id)
+	tasks, err := h.service.GetAllTasks(userID.(int))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "task not found"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, task)
+	c.JSON(http.StatusOK, tasks)
 }
 
 // POST /tasks
 func (h *Handler) CreateTask(c *gin.Context) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "user_id not found in context"})
+		return
+	}
+
 	var task Task
 	if err := c.ShouldBindJSON(&task); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := h.service.CreateTask(task); err != nil {
+	if err := h.service.CreateTask(task, userID.(int)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
