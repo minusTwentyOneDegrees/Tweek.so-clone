@@ -1,32 +1,30 @@
 package router
 
 import (
-	"database/sql"
-	"net/http"
-
+	"Backend/auth"
+	config "Backend/conf"
+	middleware "Backend/mware"
 	"Backend/tasks"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/gin-gonic/gin"
 )
 
-func Setup(db *sql.DB) http.Handler {
-	r := chi.NewRouter()
+func SetupRoutes(r *gin.Engine, taskHandler *tasks.Handler, cfg config.Config) {
+	// Middleware
+	r.Use(middleware.Logger())
+	r.Use(middleware.CORS())
 
-	// Общие middleware
-	r.Use(middleware.Logger)    // Логгирует каждый запрос
-	r.Use(middleware.Recoverer) // Защищает от паники
-	r.Use(middleware.AllowContentType("application/json"))
+	// Auth handler
+	authHandler := auth.NewHandler([]byte(cfg.JWTSecret))
 
-	// Добавим корневой роут
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Tweek Clone API is running"))
-	})
+	// Public routes
+	r.POST("/register", authHandler.Register)
+	r.POST("/login", authHandler.Login)
 
-	// Подключаем маршруты фич-флагов
-	r.Route("/flags", func(r chi.Router) {
-		tasks.RegisterRoutes(r, db)
-	})
-
-	return r
+	// Защищённые роуты
+	api := r.Group("/api")
+	api.Use(middleware.JWTAuthMiddleware(cfg))
+	{
+		tasks.RegisterRoutes(api, taskHandler)
+	}
 }
