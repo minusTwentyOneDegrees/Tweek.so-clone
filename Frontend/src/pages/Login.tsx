@@ -1,8 +1,10 @@
 // LoginPage.jsx
 import React, { useState, useEffect } from 'react'
 import '../styles/login.css'
+import { useNavigate } from 'react-router-dom'
 
 const LoginPage = () => {
+	const navigate = useNavigate()
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [emailError, setEmailError] = useState(false)
@@ -21,20 +23,42 @@ const LoginPage = () => {
 		return re.test(email)
 	}
 
-	const handleLogin = () => {
+	const handleLogin = async () => {
+		
 		const isEmailValid = validateEmail(email)
 		const isPasswordFilled = password.trim() !== ''
-		const isEmailFilled = email.trim() !== ''
-
-		setEmailError(!isEmailFilled || !isEmailValid)
+	
+		setEmailError(!isEmailValid)
 		setPasswordError(!isPasswordFilled)
-
-		if (isEmailFilled && isEmailValid && isPasswordFilled) {
-			// Данные для вывода в бэк
-			console.log('Email:', email)
-			console.log('Password:', password)
+	
+		if (isEmailValid && isPasswordFilled) {
+			try {
+				const response = await fetch('http://localhost:8080/login', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						username: email,
+						password: password,
+					}),
+				})
+	
+				if (!response.ok) {
+					alert('Неверный email или пароль')
+					return
+				}
+	
+				const data = await response.json()
+				localStorage.setItem('token', data.token)
+				window.location.href = '/'
+			} catch (error) {
+				console.error('Ошибка при входе:', error)
+				alert('Произошла ошибка. Попробуйте позже.')
+			}
 		}
 	}
+	
 
 	return (
 		<div className='login-page'>
@@ -57,7 +81,7 @@ const LoginPage = () => {
 				<button className='login-button' onClick={handleLogin}>
 					Вход
 				</button>
-				<button className='login-button google'>Войти через Google</button>
+				<button className='login-button google' onClick={() => navigate('/signup')}>Войти через Google</button>
 			</div>
 		</div>
 	)
