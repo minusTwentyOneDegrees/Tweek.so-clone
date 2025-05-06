@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -29,6 +30,10 @@ func (h *Handler) GetAllTasks(c *gin.Context) {
 		return
 	}
 
+	if tasks == nil {
+		tasks = []Task{}
+	}
+	fmt.Println(tasks)
 	c.JSON(http.StatusOK, tasks)
 }
 
@@ -42,16 +47,19 @@ func (h *Handler) CreateTask(c *gin.Context) {
 
 	var task Task
 	if err := c.ShouldBindJSON(&task); err != nil {
+		fmt.Println("JSON bind error:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := h.service.CreateTask(task, userID.(int)); err != nil {
+	id, err := h.service.CreateTask(task, userID.(int))
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "task created"})
+	// Возвращаем только id
+	c.JSON(http.StatusCreated, gin.H{"id": id})
 }
 
 // PUT /tasks/:id
