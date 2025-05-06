@@ -11,6 +11,12 @@ import (
 
 func JWTAuthMiddleware(cfg config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// preflight-запросы без проверки токена
+		if c.Request.Method == "OPTIONS" {
+			c.Next()
+			return
+		}
+
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token required"})
@@ -35,7 +41,6 @@ func JWTAuthMiddleware(cfg config.Config) gin.HandlerFunc {
 		}
 
 		c.Set("user_id", claims.UserID)
-
 		c.Next()
 	}
 }
