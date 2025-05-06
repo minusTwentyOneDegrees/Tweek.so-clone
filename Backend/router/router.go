@@ -9,15 +9,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(r *gin.Engine, taskHandler *tasks.Handler, cfg config.Config) {
-	// Middleware
-	r.Use(middleware.Logger())
-	r.Use(middleware.CORS())
+func SetupRoutes(r *gin.Engine, taskHandler *tasks.Handler, authHandler *auth.Handler, cfg config.Config) {
 
-	// Auth handler
-	authHandler := auth.NewHandler([]byte(cfg.JWTSecret))
-
-	// Public routes
+	// открытые роуты
 	r.POST("/register", authHandler.Register)
 	r.POST("/login", authHandler.Login)
 
