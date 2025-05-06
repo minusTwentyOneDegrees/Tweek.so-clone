@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import '../styles/login.css'
+import { useNavigate } from 'react-router-dom'
 
 const SignupPage = () => {
+	const navigate = useNavigate()
 	const [name, setName] = useState('')
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
@@ -21,19 +23,43 @@ const SignupPage = () => {
 		return re.test(email)
 	}
 
-	const handleSignup = () => {
+	const handleSignup = async () => {
 		const isEmailValid = validateEmail(email)
-		const isEmailFilled = email.trim() !== ''
 		const isPasswordFilled = password.trim() !== ''
-
+		const isEmailFilled = email.trim() !== ''
+	
 		setEmailError(!isEmailFilled || !isEmailValid)
 		setPasswordError(!isPasswordFilled)
-
+	
 		if (isEmailValid && isPasswordFilled) {
-			// Данные для вывода в бэк
-			console.log('Name:', name)
-			console.log('Email:', email)
-			console.log('Password:', password)
+			try {
+				const response = await fetch('http://localhost:8080/register', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						username: email,
+						password: password,
+					}),
+				})
+	
+				if (response.status === 409) {
+					alert('Пользователь с таким email уже существует')
+					return
+				}
+	
+				if (!response.ok) {
+					alert('Ошибка при регистрации')
+					return
+				}
+	
+				alert('Регистрация успешна! Теперь войдите в систему.')
+				navigate('/login')
+			} catch (error) {
+				console.error('Ошибка при регистрации:', error)
+				alert('Произошла ошибка. Попробуйте позже.')
+			}
 		}
 	}
 
@@ -65,9 +91,7 @@ const SignupPage = () => {
 				<button className='login-button' onClick={handleSignup}>
 					Зарегистрироваться
 				</button>
-				<button className='login-button google'>
-					Зарегистрироваться через Google
-				</button>
+				<button className='login-button google' onClick={() => navigate('/login')}>Войти через Google</button>
 			</div>
 		</div>
 	)
