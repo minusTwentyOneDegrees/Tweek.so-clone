@@ -91,7 +91,7 @@ const SignupPage = () => {
 				<button className='login-button' onClick={handleSignup}>
 					Зарегистрироваться
 				</button>
-				<button className='login-button google' onClick={() => navigate('/login')}>Войти через Google</button>
+				<button className='login-button google' onClick={() => navigate('/login')}>Войти</button>
 			</div>
 		</div>
 	)
