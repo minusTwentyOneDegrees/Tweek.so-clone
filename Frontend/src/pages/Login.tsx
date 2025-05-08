@@ -81,7 +81,7 @@ const LoginPage = () => {
 				<button className='login-button' onClick={handleLogin}>
 					Вход
 				</button>
-				<button className='login-button google' onClick={() => navigate('/signup')}>Войти через Google</button>
+				<button className='login-button google' onClick={() => navigate('/signup')}>Зарегистрироваться</button>
 			</div>
 		</div>
 	)
