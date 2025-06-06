@@ -22,3 +22,13 @@ func SetupRoutes(r *gin.Engine, taskHandler *tasks.Handler, authHandler *auth.Ha
 		tasks.RegisterRoutes(api, taskHandler)
 	}
 }
+//регистрирует маршруты задач
+func RegisterRoutes(rg *gin.RouterGroup, h *Handler) {
+	tasks := rg.Group("/tasks")
+	{
+		tasks.GET("", h.GetAllTasks)
+		tasks.POST("", h.CreateTask)
+		tasks.PUT("/:id", h.UpdateTask)
+		tasks.DELETE("/:id", h.DeleteTask)
+	}
+}
